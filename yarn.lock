@@ -4094,9 +4094,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tldraw-physics@workspace:.":
+"tldraw-3d@workspace:.":
   version: 0.0.0-use.local
-  resolution: "tldraw-physics@workspace:."
+  resolution: "tldraw-3d@workspace:."
   dependencies:
     "@biomejs/biome": "npm:1.4.1"
     "@tldraw/tldraw": "npm:^2.1.1"

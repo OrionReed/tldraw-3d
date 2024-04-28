@@ -1,8 +1,8 @@
 {
-  "name": "tldraw-physics",
+  "name": "tldraw-3d",
   "private": true,
   "version": "0.0.1",
-  "homepage": "https://OrionReed.github.io/tldraw-physics",
+  "homepage": "https://OrionReed.github.io/tldraw-3d",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"HOST=localhost PORT=1234 npx y-websocket\" --kill-others",
