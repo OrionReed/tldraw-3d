@@ -56,10 +56,13 @@ export class Underlay {
 
   draw(sketch: p5, shapes: TLShape[]) {
     const cam = this.editor.getCamera()
+    sketch.scale(cam.z, cam.z, cam.z);
+
     let previousShape: TLShape | null = null
     shapes.forEach((shape) => {
-      const shapeX = (shape.x + cam.x) - sketch.width / 2;
-      const shapeY = (shape.y + cam.y) - sketch.height / 2;
+      const shapeX = (shape.x + cam.x) - sketch.width / 2 / cam.z;
+      const shapeY = (shape.y + cam.y) - sketch.height / 2 / cam.z;
+
 
       sketch.push();
       sketch.translate(shapeX, shapeY);
