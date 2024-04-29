@@ -17,7 +17,7 @@ export class Underlay {
     this.editor = editor
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.histories = new CircularBufferDict<TLShapeId, TLShape>(100);
+    this.histories = new CircularBufferDict<TLShapeId, TLShape>(120);
 
     this.p5 = new p5((sketch: p5) => {
       let layer: p5.Framebuffer
@@ -120,9 +120,9 @@ export class Underlay {
       const geoColor: p5.Color = sketch.color(190, 50, 50)
       const strokeColor: p5.Color = sketch.color(190, 50, 30)
 
+      const geo = this.editor.getShapeGeometry(shape)
       for (let t = history.length - 1; t >= 0; t--) {
         const record = history[t]
-        const geo = this.editor.getShapeGeometry(record)
         const pos = this.shapePos(sketch, record, cam)
         const layerDepth = -50
         const depth = layerDepth * (history.length - 1 - t)
