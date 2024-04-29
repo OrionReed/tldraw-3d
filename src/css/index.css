@@ -75,12 +75,29 @@ canvas {
 	pointer-events: "all";
 	position: absolute;
 	left: 50%;
-	margin: 0.2em;
 	transform: translateX(-50%);
 	z-index: 999999;
 }
 
 .controls button {
-	margin: 0.1em;
-	padding: 0.3em;
+	margin: 4px;
+	margin-top: 8px;
+	padding: 8px;
+	border: none;
+	background-color: #5b646d;
+	color: white;
+	font-size: 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition:
+		background-color 0.3s,
+		transform 0.3s;
+}
+.controls button:hover {
+	background-color: #768594;
+	transform: scale(1.05);
+}
+.controls button:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
 }
