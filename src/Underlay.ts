@@ -1,4 +1,4 @@
-import { Editor, TLCamera, TLShape, VecLike } from "@tldraw/tldraw";
+import { Editor, TLCamera, TLRecord, TLShape, TLShapeId, VecLike } from "@tldraw/tldraw";
 import p5 from "p5";
 import fogVertexShader from './glsl/fog.vert?raw';
 import fogFragmentShader from './glsl/fog.frag?raw';
@@ -11,11 +11,13 @@ export class Underlay {
   p5: p5
   width: number
   height: number
+  histories: CircularBufferDict<TLShapeId, TLShape>;
 
   constructor(editor: Editor) {
     this.editor = editor
     this.width = window.innerWidth;
     this.height = window.innerHeight;
+    this.histories = new CircularBufferDict<TLShapeId, TLShape>(100);
 
     this.p5 = new p5((sketch: p5) => {
       let layer: p5.Framebuffer
@@ -29,6 +31,13 @@ export class Underlay {
           width: sketch.width,
           height: sketch.height,
         }) as unknown as p5.Framebuffer; // eww
+
+        this.editor.store.onAfterChange = (_: TLRecord, next: TLRecord, __: 'remote' | 'user') => {
+          if (next.typeName !== 'shape' || !opts.history) {
+            return
+          }
+          this.histories.push(next.id, next)
+        }
       };
       sketch.draw = () => {
         sketch.colorMode(sketch.HSL)
@@ -64,6 +73,9 @@ export class Underlay {
     if (opts.edges) {
       this.drawRope(sketch, shapes)
     }
+    if (opts.history) {
+      this.drawHistory(sketch, shapes)
+    }
   }
 
   drawGeo: UnderlayDraw = (sketch: p5, shapes: TLShape[]) => {
@@ -75,7 +87,6 @@ export class Underlay {
       sketch.translate(pos.x, pos.y);
       sketch.rotateZ(shape.rotation);
 
-      // draw geo
       const geoColor: p5.Color = sketch.color(190, 50, 50)
       const strokeColor: p5.Color = sketch.color(190, 50, 30)
       const depth = 10000
@@ -96,6 +107,39 @@ export class Underlay {
         sketch.endShape(sketch.CLOSE);
       }
       sketch.pop();
+    });
+  }
+
+  drawHistory: UnderlayDraw = (sketch: p5, shapes: TLShape[]) => {
+    const cam = this.editor.getCamera()
+    shapes.forEach((shape) => {
+      const history = this.histories.toArray(shape.id);
+      if (!history) {
+        return
+      }
+      const geoColor: p5.Color = sketch.color(190, 50, 50)
+      const strokeColor: p5.Color = sketch.color(190, 50, 30)
+
+      for (let t = history.length - 1; t >= 0; t--) {
+        const record = history[t]
+        const geo = this.editor.getShapeGeometry(record)
+        const pos = this.shapePos(sketch, record, cam)
+        const layerDepth = -50
+        const depth = layerDepth * (history.length - 1 - t)
+
+        sketch.push();
+        sketch.translate(pos.x, pos.y, depth);
+        sketch.rotateZ(record.rotation);
+        const vertices = geo.vertices
+        sketch.stroke(strokeColor)
+        sketch.fill(geoColor);
+        sketch.beginShape();
+        for (const vertex of vertices) {
+          sketch.vertex(vertex.x, vertex.y, 0);
+        }
+        sketch.endShape(sketch.CLOSE);
+        sketch.pop();
+      }
     });
   }
 
@@ -174,4 +218,63 @@ export class Underlay {
     return { x: shapeX, y: shapeY }
   }
 
+}
+
+class CircularBufferDict<TKey, TValue> {
+  private buffers: Map<TKey, CircularBuffer<TValue>>;
+  private capacity: number;
+
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.buffers = new Map<TKey, CircularBuffer<TValue>>();
+  }
+
+  push(key: TKey, item: TValue): void {
+    let buffer = this.buffers.get(key);
+    if (!buffer) {
+      buffer = new CircularBuffer<TValue>(this.capacity);
+      this.buffers.set(key, buffer);
+    }
+    buffer.push(item);
+  }
+
+  get(key: TKey): CircularBuffer<TValue> | undefined {
+    return this.buffers.get(key);
+  }
+
+  toArray(key: TKey): TValue[] | undefined {
+    const buffer = this.buffers.get(key);
+    return buffer ? buffer.toArray() : undefined;
+  }
+}
+
+class CircularBuffer<T> {
+  private buffer: T[];
+  private head = 0;
+  private tail = 0;
+  private length = 0;
+  private capacity: number;
+
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.buffer = new Array(capacity);
+  }
+
+  push(item: T): void {
+    this.buffer[this.tail] = item;
+    this.tail = (this.tail + 1) % this.capacity;
+    if (this.length < this.capacity) {
+      this.length++;
+    } else {
+      this.head = (this.head + 1) % this.capacity; // Overwrite the oldest data
+    }
+  }
+
+  toArray(): T[] {
+    const result = [];
+    for (let i = 0; i < this.length; i++) {
+      result.push(this.buffer[(this.head + i) % this.capacity]);
+    }
+    return result;
+  }
 }
