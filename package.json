@@ -9,9 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build --base=./",
-    "preview": "vite preview",
-    "lint": "yarn dlx @biomejs/biome check --apply src"
+    "build": "tsc && vite build --base=./"
   },
   "dependencies": {
     "p5": "^1.9.3",
