@@ -1,10 +1,15 @@
-import ReactDOM from "react-dom/client";
-import { Tldraw } from "tldraw";
-import { Controls } from "./Controls";
-import { Underlay } from "./Underlay";
-
 import "tldraw/tldraw.css";
 import "./style.css";
+import ReactDOM from "react-dom/client";
+import { Tldraw } from "tldraw";
+import { UnderlayRenderer } from "@/underlay";
+import {
+	EdgeUnderlay,
+	GeoUnderlay,
+	HistoryUnderlay,
+} from "@/underlay/examples";
+
+const underlays = [GeoUnderlay, HistoryUnderlay, EdgeUnderlay];
 
 const root = document.getElementById("root");
 if (root) {
@@ -13,11 +18,9 @@ if (root) {
 			<Tldraw
 				persistenceKey="tldraw-3d"
 				onMount={(editor) => {
-					new Underlay(editor);
+					new UnderlayRenderer(editor, underlays);
 				}}
-			>
-				<Controls />
-			</Tldraw>
+			/>
 		</div>,
 	);
 }
