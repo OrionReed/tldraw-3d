@@ -3,21 +3,10 @@
 	"organizeImports": {
 		"enabled": true
 	},
-	"files": {
-		"ignore": [
-			"src/hull"
-		]
-	},
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
-			"complexity": {
-				"noForEach": "off"
-			},
-			"correctness": {
-				"useExhaustiveDependencies": "off"
-			}
+			"recommended": true
 		}
 	}
 }
