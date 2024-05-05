@@ -1,6 +1,6 @@
 import { UnderlayBase } from "@/underlay";
-import { TLShape } from "tldraw";
-import p5 from "p5";
+import type { TLShape } from "tldraw";
+import type p5 from "p5";
 
 /** Underlay which draws edges between shapes as hanging 'ropes' */
 export class EdgeUnderlay extends UnderlayBase {

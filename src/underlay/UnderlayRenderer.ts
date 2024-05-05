@@ -2,7 +2,7 @@ import p5 from "p5";
 import type { Editor } from "tldraw";
 import fogFragmentShader from "@/underlay/glsl/fog.frag?raw";
 import fogVertexShader from "@/underlay/glsl/fog.vert?raw";
-import { UnderlayBase } from "@/underlay/UnderlayBase";
+import type { UnderlayBase } from "@/underlay/UnderlayBase";
 
 /** An "Underlay" is a 3D scene that is drawn under the canvas with aligned coordinates (tldraw is at z=0). */
 export class UnderlayRenderer {
@@ -11,7 +11,6 @@ export class UnderlayRenderer {
   width: number;
   height: number;
   underlays: Map<string, UnderlayBase> = new Map();
-  underlaysEnabled: Map<string, boolean> = new Map();
 
   constructor(editor: Editor, underlays: (new (editor: Editor) => UnderlayBase)[]) {
     this.editor = editor;
@@ -59,8 +58,8 @@ export class UnderlayRenderer {
           cam.y - sketch.height / 2 / cam.z,
         );
 
-        for (const [name, underlay] of this.underlays) {
-          if (this.underlaysEnabled.get(name)) {
+        for (const underlay of this.underlays.values()) {
+          if (underlay.enabled) {
             underlay.render(sketch, shapes);
           }
         }
@@ -91,9 +90,10 @@ export class UnderlayRenderer {
       const button = document.createElement('button');
       button.textContent = `${name} 🙈`;
       button.addEventListener('click', () => {
-        const isEnabled = this.underlaysEnabled.get(name);
-        this.underlaysEnabled.set(name, !isEnabled);
-        button.textContent = `${name} ${isEnabled ? '🙈' : '🙉'}`;
+        const underlay = this.underlays.get(name);
+        if (!underlay) return;
+        underlay.enabled = !underlay.enabled;
+        button.textContent = `${name} ${underlay.enabled ? '🙈' : '🙉'}`;
       });
       controlsDiv.appendChild(button);
     }

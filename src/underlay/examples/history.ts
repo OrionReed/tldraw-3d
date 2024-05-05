@@ -1,6 +1,6 @@
 import { UnderlayBase } from "@/underlay";
-import { Editor, TLRecord, TLShape, TLShapeId, VecLike } from "tldraw";
-import p5 from "p5";
+import type { Editor, TLShape, TLShapeId, VecLike } from "tldraw";
+import type p5 from "p5";
 
 type Snapshot = {
   x: number;
@@ -17,22 +17,16 @@ export class HistoryUnderlay extends UnderlayBase {
   constructor(editor: Editor) {
     super(editor);
     this.histories = new CircularBufferDict<TLShapeId, Snapshot>(120);
-    this.editor.store.onAfterChange = (
-      _: TLRecord,
-      next: TLRecord,
-      __: "remote" | "user",
-    ) => {
-      if (next.typeName !== "shape") {
-        return;
-      }
-      const vertices = this.editor.getShapeGeometry(next).vertices;
-      this.histories.push(next.id, {
-        x: next.x,
-        y: next.y,
-        rotation: next.rotation,
+    editor.sideEffects.registerAfterChangeHandler('shape', (_, after) => {
+      if (!this.enabled) return;
+      const vertices = this.editor.getShapeGeometry(after).vertices;
+      this.histories.push(after.id, {
+        x: after.x,
+        y: after.y,
+        rotation: after.rotation,
         vertices: vertices,
       });
-    };
+    });
   }
 
   render(sketch: p5, shapes: TLShape[]) {

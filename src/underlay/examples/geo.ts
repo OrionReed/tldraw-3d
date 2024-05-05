@@ -1,6 +1,6 @@
-import { TLShape } from "tldraw";
 import { UnderlayBase } from "@/underlay";
-import p5 from "p5";
+import type { TLShape } from "tldraw";
+import type p5 from "p5";
 
 /** Underlay which draws the geometry of each shape as a basic 3D polygon 'tower' */
 export class GeoUnderlay extends UnderlayBase {
