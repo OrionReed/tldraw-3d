@@ -1,7 +1,8 @@
-## tldraw-3d
-A simple 3D 'underlay' for tldraw. 
+## A 3D 'Underlay' for tldraw
 
-The idea is simple: The UX of 2D canvases can be great, but that doesn't mean we can't use that third spare dimension for feedback. The underlay is a 3D scene which is aligned to the 2D canvas and rendered underneath it.
+The idea is simple: 2D canvases can be great, but there's a whole dimension spare! What if we could use that third dimension for feedback, better legibility, or to allow for the creation of semantics which are not possible (or less useful) in 2D alone?
+
+The underlay binds a 3D scene to the 2D canvas and renders it behind the 2D scene.
 
 3 small examples:
 - GeoUnderlay: Show shape geometry as a 3D "tower"
